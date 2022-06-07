@@ -89,8 +89,8 @@ time_buffer = Buffer(time_staging_buffer.size, format=R8G8B8A8_UNORM)
 
 # NOTE: Just wanted to keep the shader files as clean as possible
 # Don't do this.. use a static buffer instead
-def loadShader(path, srv, uav):
-    s = open(path+ ".hlsl", "r").read()
+def loadShader(name, srv, uav):
+    s = open("shaders/{}.hlsl".format(name), "r").read()
     s = s.replace("!WIDTH", str(WIDTH)).replace("!HEIGHT", str(HEIGHT))
     s = s.replace("!SA", str(SA)).replace("!RA", str(RA))
     s = s.replace("!SO", str(SO)).replace("!SS", str(SS)).replace("!SW", str(SW))
