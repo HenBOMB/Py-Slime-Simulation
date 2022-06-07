@@ -61,6 +61,17 @@ void main(uint3 tid : SV_DispatchThreadID)
 
     uint h = hash(pos.y * !WIDTH + pos.y + angle + hash(tid.x + time[0] * 100000));
 
+    // SENSOR
+    
+	float forward   = sense(agentsIn[tid.x],    0);
+	float left      = sense(agentsIn[tid.x],  !SA);
+	float right     = sense(agentsIn[tid.x], -!SA);
+	
+	if(forward > left && forward > right)       angle += 0;
+	else if(forward < left && forward < right)  angle += rand(hash(h)) > 0.5? !RA : -!RA;
+	else if(right > left)                       angle -= !RA;
+	else if(left > right)                       angle += !RA;
+
     // MOTOR
 
     pos += float2(cos(angle), sin(angle)) * !SS;
@@ -72,17 +83,6 @@ void main(uint3 tid : SV_DispatchThreadID)
         angle = rand(h) * 2 * 3.1415;
     }
     else trailMapOut[int2(pos).xy] = 1;
-
-    // SENSOR
-    
-	float forward   = sense(agentsIn[tid.x],    0);
-	float left      = sense(agentsIn[tid.x],  !SA);
-	float right     = sense(agentsIn[tid.x], -!SA);
-	
-	if(forward > left && forward > right)       angle += 0;
-	else if(forward < left && forward < right)  angle += rand(hash(h)) > 0.5? !RA : -!RA;
-	else if(right > left)                       angle -= !RA;
-	else if(left > right)                       angle += !RA;
 
     agentsOut[tid.x].pos = pos;
     agentsOut[tid.x].angle = angle;
