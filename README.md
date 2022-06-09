@@ -78,6 +78,7 @@ The amount of outputs to different combinations is incredibly vast, these are ju
 `a6.json`<br>
 ![2022-06-09-05-12-03](https://user-images.githubusercontent.com/58308591/172798796-e7cdc10f-5239-4127-be08-02e399d6c2a7.gif)
 
-Also check out `food.json`, the agents find the shortest path between two food sources.
+`food.json`, 200 agents find the shortest path between two food sources. (sped up by 300x)<br>
+![2022-06-09-16-21-18](https://user-images.githubusercontent.com/58308591/172929483-0d46261a-ebdf-4a59-adfb-1087ef2919a4.gif)
 
 ***Used [compushady](https://github.com/rdeioris/compushady) to run the `HLSL` compute shaders.***
