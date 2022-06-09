@@ -1,5 +1,5 @@
 {
-    "width":            960,
+    "width" :           930,
     "height":           540,
     "agent_count":      250000,
     "steps_per_frame":  1,

@@ -1,12 +1,12 @@
 {
-    "width":            960,
+    "width" :           930,
     "height":           540,
-    "agent_count":      25000,
-    "steps_per_frame":  1,
-    "spawn_mode":       2,
+    "agent_count":      10000,
+    "steps_per_frame":  5,
+    "spawn_mode":       1,
     "die_on_trapped":   false,
     "death_time":       20,
-    "hard_avoidance":   false,
+    "hard_avoidance":   true,
     "decay_rate":       0.005,
     "blur_rate":        0.3,
     "species":          [

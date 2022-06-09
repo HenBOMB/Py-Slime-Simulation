@@ -2,7 +2,7 @@
     "width" :           960,
     "height" :          540,
     "agent_count" :     10000,
-    "steps_per_frame" : 10,
+    "steps_per_frame" : 1,
     "spawn_mode" :      1,
     "hard_avoidance":   false,
     "decay_rate":       0.005,

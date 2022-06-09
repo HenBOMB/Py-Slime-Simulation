@@ -1,0 +1,13 @@
+{
+    "width" :           930,
+    "height" :          540,
+    "agent_count" :     2000,
+    "steps_per_frame" : 1,
+    "spawn_mode" :      0,
+    "hard_avoidance":   true,
+    "decay_rate":       0.001,
+    "blur_rate":        0.2,
+    "species": [
+        [ 20, 80, 9, 1, 1, [0.5, 0.5, 1] ]
+    ]
+}
