@@ -6,7 +6,9 @@
     "spawn_mode":       1,
     "die_on_trapped":   false,
     "death_time":       15,
-    "hard_avoidance":   false,
+    "agent_overlapping":true,
+    "radial_boundary":  false,
+    "border":           0,
     "decay_rate":       0.01,
     "blur_rate":        0.2,
     "species": [

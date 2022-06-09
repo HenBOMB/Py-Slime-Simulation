@@ -16,9 +16,7 @@ DRAW_AGENTS_ONLY = False
 # Draw a faint glow of where the food are
 DRAW_FOOD = False
 
-# Constrains the agents to a circle boundary (height/2)
-RADIAL_CONSTRAINT = False
-
+#TODO: Not working with format 'R16G16B16A16_FLOAT', use 'R8G8B8A8_UNORM' when recording.
 recording_frames = 0
 recording_images = []
 recording_path = ""
@@ -47,21 +45,25 @@ def run(path):
     def getProperty(name):
         return config[name] if name in config else defaults[name]
 
-    WIDTH           = getProperty("width")
-    HEIGHT          = getProperty("height")
-    AGENT_COUNT     = getProperty("agent_count")
-    STEPS_PER_FRAME = getProperty("steps_per_frame")
-    SPAWN_MODE      = getProperty("spawn_mode")
-    DIE_ON_TRAPPED  = getProperty("die_on_trapped")
-    DEATH_TIME      = getProperty("death_time")
-    HARD_AVOIDANCE  = getProperty("hard_avoidance")
-    DECAY_RATE      = getProperty("decay_rate")
-    BLUR_RATE       = getProperty("blur_rate")
-    SPECIES         = getProperty("species")
+    WIDTH               = getProperty("width")
+    HEIGHT              = getProperty("height")
+    AGENT_COUNT         = getProperty("agent_count")
+    STEPS_PER_FRAME     = getProperty("steps_per_frame")
+    SPAWN_MODE          = getProperty("spawn_mode")
+    DIE_ON_TRAPPED      = getProperty("die_on_trapped")
+    DEATH_TIME          = getProperty("death_time")
+    HARD_AVOIDANCE      = getProperty("hard_avoidance")
+    DECAY_RATE          = getProperty("decay_rate")
+    BLUR_RATE           = getProperty("blur_rate")
+    SPECIES             = getProperty("species")
+    AGENT_OVERLAPPING   = getProperty("agent_overlapping")
+    RADIAL_BOUNDARY     = getProperty("radial_boundary")
+    BORDER              = getProperty("border")
     
-    AGENT_COUNT = (AGENT_COUNT // AGENT_THREADS) * AGENT_THREADS
     HEIGHT = (HEIGHT // TEXTURE_THREADS) * TEXTURE_THREADS
     WIDTH = (WIDTH // TEXTURE_THREADS) * TEXTURE_THREADS
+
+    AGENT_COUNT = (AGENT_COUNT // AGENT_THREADS) * AGENT_THREADS
 
     #####################
     # TEXTURE BUFFERS
@@ -230,19 +232,23 @@ def run(path):
     # Don't do this.. use a static buffer instead
     def loadShader(name, srv, uav):
         s = open("shaders/{}.hlsl".format(name), "r").read()
-        s = s.replace("!WIDTH", str(WIDTH)).replace("!HEIGHT", str(HEIGHT))
-        s = s.replace("!BLUR_RATE", str(BLUR_RATE)).replace("!DECAY_RATE", str(DECAY_RATE))
-        s = s.replace("!DRAW_AGENTS_ONLY", str(DRAW_AGENTS_ONLY).lower())
-        s = s.replace("!DIE_ON_TRAPPED", str(DIE_ON_TRAPPED).lower())
-        s = s.replace("!RADIAL_CONSTRAINT", str(RADIAL_CONSTRAINT).lower())
-        s = s.replace("!DRAW_FOOD", str(DRAW_FOOD).lower())
-        s = s.replace("!HARD_AVOIDANCE", str(HARD_AVOIDANCE).lower())
-        s = s.replace("!DEATH_TIME", str(DEATH_TIME))
-        s = s.replace("!NUM_AGENTS", str(AGENT_COUNT))
-        s = s.replace("!NUM_SPECIES", str(len(SPECIES)))
-        s = s.replace("!NUM_FOOD", str(len(FOOD)))
-        s = s.replace("!AGENT_THREADS", str(AGENT_THREADS))
-        s = s.replace("!TEXTURE_THREADS", str(TEXTURE_THREADS))
+        s = s.replace("!WIDTH",             str(WIDTH))
+        s = s.replace("!HEIGHT",            str(HEIGHT))
+        s = s.replace("!BLUR_RATE",         str(BLUR_RATE))
+        s = s.replace("!DECAY_RATE",        str(DECAY_RATE))
+        s = s.replace("!DRAW_AGENTS_ONLY",  str(DRAW_AGENTS_ONLY).lower())
+        s = s.replace("!DIE_ON_TRAPPED",    str(DIE_ON_TRAPPED).lower())
+        s = s.replace("!RADIAL_BOUNDARY", str(RADIAL_BOUNDARY).lower())
+        s = s.replace("!DRAW_FOOD",         str(DRAW_FOOD).lower())
+        s = s.replace("!HARD_AVOIDANCE",    str(HARD_AVOIDANCE).lower())
+        s = s.replace("!AGENT_OVERLAPPING", str(AGENT_OVERLAPPING).lower())
+        s = s.replace("!DEATH_TIME",        str(DEATH_TIME))
+        s = s.replace("!NUM_AGENTS",        str(AGENT_COUNT))
+        s = s.replace("!NUM_SPECIES",       str(len(SPECIES)))
+        s = s.replace("!NUM_FOOD",          str(len(FOOD)))
+        s = s.replace("!AGENT_THREADS",     str(AGENT_THREADS))
+        s = s.replace("!TEXTURE_THREADS",   str(TEXTURE_THREADS))
+        s = s.replace("!BORDER",            str(BORDER))
         return Compute(hlsl.compile(s), [], srv, uav)
 
     compute_agents = loadShader(

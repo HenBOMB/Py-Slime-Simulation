@@ -88,7 +88,7 @@ float distance(int2 from, int2 to)
 float2 clamp_vector(float2 endPoint, float2 midPoint, float maxDistance)
 {
     float dist = distance(midPoint, endPoint);
-    if (dist > maxDistance * maxDistance)
+    if (dist > maxDistance)
     {
         float2 dirVector = endPoint - midPoint;
         dirVector = normalize(dirVector);
@@ -135,7 +135,7 @@ void main(uint3 tid : SV_DispatchThreadID)
 
     // If next site is occupied
     // Remain in it's current position, no chemoattractant is deposited, and a new orientation is randomly selected
-    if(agentsTexture[coord.xy].r != 0)
+    if(!!AGENT_OVERLAPPING && agentsTexture[coord.xy].r != 0)
     {
         agentsOut[tid.x].pos = agentsIn[tid.x].pos;
         agentsOut[tid.x].angle = rand(hash(h)) * 2 * 3.1415;
@@ -150,15 +150,16 @@ void main(uint3 tid : SV_DispatchThreadID)
 
     float2 mid = float2(!WIDTH/2., !HEIGHT/2.);
 
-    // Clamp to bounds
-    if ((!RADIAL_CONSTRAINT && distance(pos, mid) >= mid.y) 
-        || pos.x < 0 || pos.x >= !WIDTH || pos.y < 0 || pos.y >= !HEIGHT)
+    if(!RADIAL_BOUNDARY && distance(pos, mid) >= mid.y - !BORDER * 2)
     {
-        pos.x = clamp(pos.x, 0, !WIDTH - 1);
-        pos.y = clamp(pos.y, 0, !HEIGHT - 1);
-
-        if(!RADIAL_CONSTRAINT) pos = clamp_vector(pos, mid, mid.y);
-
+        pos = clamp_vector(pos, mid, mid.y - !BORDER * 2);
+        angle = rand(hash(h)) * 2 * 3.1415;
+    }
+    // Clamp to bounds
+    if (!!RADIAL_BOUNDARY && (pos.x < !BORDER || pos.x >= !WIDTH - !BORDER || pos.y < !BORDER || pos.y >= !HEIGHT - !BORDER))
+    {
+        pos.x = clamp(pos.x, 0, !WIDTH - 1 - !BORDER);
+        pos.y = clamp(pos.y, 0, !HEIGHT - 1 - !BORDER);
         angle = rand(hash(h)) * 2 * 3.1415;
     }
     // Deposit a constant chemoattractant value

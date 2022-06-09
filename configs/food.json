@@ -2,10 +2,12 @@
     "width" :           200,
     "height" :          200,
     "agent_count" :     800,
-    "steps_per_frame" : 10,
+    "steps_per_frame" : 1,
     "spawn_mode" :      0,
     "decay_rate":       0.001,
     "blur_rate":        0.3,
+    "agent_overlapping":false,
+    "border":           10,
     "species": [
         [ 45, 45, 9, 1, 1, [0.5, 0, 0.5] ]
     ]

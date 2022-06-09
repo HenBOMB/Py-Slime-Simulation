@@ -11,15 +11,17 @@ Simple artificial life python pogram based on this [slime simulation paper](http
 {
     "width" :           930,
     "height":           540,
-    "agent_count" :     10000,
+    "agent_count":      10000,
     "steps_per_frame":  1,
     "spawn_mode":       1,
     "die_on_trapped":   false,
-    "death_time":       20,
-    "hard_avoidance":   false,
+    "death_time":       15,
+    "agent_overlapping":true,
+    "radial_boundary":  false,
+    "border":           0,
     "decay_rate":       0.01,
     "blur_rate":        0.2,
-    "species":          [
+    "species": [
         [ 22.5, 45, 9, 1, 1, [1, 1, 1] ]
     ]
 }
@@ -48,8 +50,14 @@ Make the agents die if they get surrounded, cannot move, or collide with other s
 **`death_time`**
 Agents will start dying after `death_time` seconds, this is to give them time to spread out when spawned, since many will spawn on top of each other.
 
-**`hard_avoidance`**
-Does additional checks to minimize the chance of colliding with other species.
+**`agent_overlapping`**
+When false, agents cannot move to a cell where another agent already is
+
+**`radial_boundary`**
+Sets the agents boundary to a circle `(height/2)`
+
+**`border`**
+Border boundary offset.
 
 **`decay_rate`**
 How much to decay the agent trails per frame.
