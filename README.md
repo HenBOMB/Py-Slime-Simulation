@@ -50,8 +50,6 @@ Simple artificial life python program based on this [slime simulation paper](htt
 
 ## Examples
 
-The amount of outputs to different combinations is incredibly vast, these are just a few i came up with
-
 `a5.json`<br>
 ![2022-06-09-04-38-03](https://user-images.githubusercontent.com/58308591/172794499-1cbbc49c-2f35-4570-940f-1f060e566d5f.gif)
 
