@@ -1,7 +1,5 @@
 # Python Slime-Simulation
 
-Based on this paper: 
-
 Simple python pogram based on this [slime simulation paper](https://uwe-repository.worktribe.com/output/980579), using compute shaders to run the simulation.
 
 ##  Default Configuration
