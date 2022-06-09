@@ -2,7 +2,7 @@
     "width" :           200,
     "height" :          200,
     "agent_count" :     800,
-    "steps_per_frame" : 100,
+    "steps_per_frame" : 300,
     "spawn_mode" :      0,
     "decay_rate":       0.001,
     "blur_rate":        0.3,
