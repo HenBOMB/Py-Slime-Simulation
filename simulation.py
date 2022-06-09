@@ -12,13 +12,27 @@ AGENT_THREADS = 32
 TEXTURE_THREADS = 32
 
 # Draw only the agents on the screen?
-DRAW_AGENTS_ONLY = False
+DRAW_AGENTS_ONLY = True
+# Draw a faint glow of where the foods are
+DRAW_FOODS = False
+# Constrains the agents to a circle boundary (height/2)
+RADIAL_CONSTRAINT = True
 
 recording_frames = 0
 recording_images = []
 recording_path = ""
 
-def run(path):
+FOODS = []
+
+def setFood(position, radius, weight):
+    FOODS.append(struct.pack("IIff", *[
+        int(position[0]),
+        int(position[1]),
+        radius,
+        weight
+    ]))
+
+def run(path, width_override = 0, height_override = 0):
     config = json.load(open(path))
     defaults = json.load(open("configs/defaults.json"))
     global recording_frames
@@ -43,6 +57,9 @@ def run(path):
     DECAY_RATE      = getProperty("decay_rate")
     BLUR_RATE       = getProperty("blur_rate")
     SPECIES         = getProperty("species")
+    
+    if(width_override != 0): WIDTH = width_override
+    if(height_override != 0): HEIGHT = height_override
 
     AGENT_COUNT = (AGENT_COUNT // AGENT_THREADS) * AGENT_THREADS
     HEIGHT = (HEIGHT // TEXTURE_THREADS) * TEXTURE_THREADS
@@ -94,6 +111,15 @@ def run(path):
     )
 
     species_buffer.upload(data)
+
+    #####################
+    # FOODS BUFFER
+    #####################
+
+    format = "IIff"
+    stride = struct.calcsize(format)
+    foods_buffer = Buffer(stride * len(FOODS), stride=stride, heap=HEAP_UPLOAD)
+    foods_buffer.upload(b''.join(FOODS))
 
     #####################
     # AGENT BUFFERS
@@ -188,6 +214,7 @@ def run(path):
         source_agents.upload(data)
 
     generateAgentsData()
+
     #####################
     # TIME BUFFER
     #####################
@@ -209,20 +236,29 @@ def run(path):
         s = s.replace("!BLUR_RATE", str(BLUR_RATE)).replace("!DECAY_RATE", str(DECAY_RATE))
         s = s.replace("!DRAW_AGENTS_ONLY", str(DRAW_AGENTS_ONLY).lower())
         s = s.replace("!DIE_ON_TRAPPED", str(DIE_ON_TRAPPED).lower())
+        s = s.replace("!RADIAL_CONSTRAINT", str(RADIAL_CONSTRAINT).lower())
+        s = s.replace("!DRAW_FOODS", str(DRAW_FOODS).lower())
         s = s.replace("!HARD_AVOIDANCE", str(HARD_AVOIDANCE).lower())
-        s = s.replace("!NUM_SPECIES",  str(len(SPECIES)))
-        s = s.replace("!NUM_AGENTS",  str(AGENT_COUNT))
-        s = s.replace("!DEATH_TIME",  str(DEATH_TIME))
+        s = s.replace("!DEATH_TIME", str(DEATH_TIME))
+        s = s.replace("!NUM_AGENTS", str(AGENT_COUNT))
+        s = s.replace("!NUM_SPECIES", str(len(SPECIES)))
+        s = s.replace("!NUM_FOODS", str(len(FOODS)))
+        s = s.replace("!AGENT_THREADS", str(AGENT_THREADS))
+        s = s.replace("!TEXTURE_THREADS", str(TEXTURE_THREADS))
         return Compute(hlsl.compile(s), [], srv, uav)
 
     compute_agents = loadShader(
-        "compute-agents",   [diffused_trail_map, source_agents, time_buffer, species_buffer], [diffused_trail_map, output_agents])
+        "compute-agents",   [diffused_trail_map, source_agents, time_buffer, species_buffer, foods_buffer],
+                            [diffused_trail_map, output_agents])
     compute_trails = loadShader(
-        "compute-trails",   [diffused_trail_map], [diffused_trail_map])
+        "compute-trails",   [diffused_trail_map], 
+                            [diffused_trail_map])
     compute_agents_texture = loadShader(
-        "color-agents",     [source_agents], [display_agents_texture])
+        "color-agents",     [source_agents], 
+                            [display_agents_texture])
     compute_display_texture = loadShader(
-        "color-screen",     [diffused_trail_map, species_buffer, blur_texture], [display_texture, display_agents_texture])
+        "color-screen",     [diffused_trail_map, display_agents_texture, species_buffer, blur_texture, foods_buffer], 
+                            [display_texture, display_agents_texture])
 
     compute_blur_shader = loadShader("blur", [blur_texture], [blur_texture])
 
@@ -248,7 +284,11 @@ def run(path):
         compute_trails.dispatch(WIDTH // TEXTURE_THREADS, HEIGHT // TEXTURE_THREADS, 1)
 
     def computeDraw():
-        if(DRAW_AGENTS_ONLY): compute_agents_texture.dispatch(WIDTH // AGENT_THREADS, 1, 1)
+        if(DRAW_AGENTS_ONLY): 
+            compute_agents_texture.dispatch(AGENT_COUNT // AGENT_THREADS, 1, 1)
+            Buffer(display_texture.size, HEAP_UPLOAD).copy_to(blur_texture)
+            compute_display_texture.dispatch(WIDTH // TEXTURE_THREADS, HEIGHT // TEXTURE_THREADS, 1)
+            return
 
         # clear the texture
         Buffer(display_texture.size, HEAP_UPLOAD).copy_to(blur_texture)
@@ -256,7 +296,7 @@ def run(path):
         compute_display_texture.dispatch(WIDTH // TEXTURE_THREADS, HEIGHT // TEXTURE_THREADS, 1)
 
         display_texture.copy_to(blur_texture)
-
+        
         compute_blur_shader.dispatch(WIDTH // TEXTURE_THREADS, HEIGHT // TEXTURE_THREADS, 1)
         compute_blur_shader.dispatch(WIDTH // TEXTURE_THREADS, HEIGHT // TEXTURE_THREADS, 1)
         compute_blur_shader.dispatch(WIDTH // TEXTURE_THREADS, HEIGHT // TEXTURE_THREADS, 1)

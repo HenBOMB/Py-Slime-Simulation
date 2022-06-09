@@ -18,11 +18,19 @@ struct Species
 };
 
 
+struct Food
+{
+    int2 pos;
+    float radius;
+    float weight;
+};
+
 Buffer<float> time : register(t2);
 
 Texture2D<float4> trailMapIn : register(t0);
 StructuredBuffer<Agent> agentsIn : register(t1);
 StructuredBuffer<Species> species : register(t3);
+StructuredBuffer<Food> foods : register(t4);
 
 RWTexture2D<float4> trailMapOut : register(u0);
 RWStructuredBuffer<Agent> agentsOut : register(u1);
@@ -70,7 +78,25 @@ float sense(Agent agent, Species s, float sensor_angle_offset)
     return sum;
 }
 
-[numthreads(32,1,1)]
+float distance(int2 from, int2 to)
+{
+    return sqrt((from.x - to.x) * (from.x - to.x)) + sqrt((from.y - to.y) * (from.y - to.y));
+}
+
+float2 clamp_vector(float2 endPoint, float2 midPoint, float maxDistance)
+{
+    float dist = distance(midPoint, endPoint);
+    if (dist > maxDistance * maxDistance)
+    {
+        float2 dirVector = endPoint - midPoint;
+        dirVector = normalize(dirVector);
+        return (dirVector * maxDistance) + midPoint;   
+    }
+
+    return endPoint;
+}
+
+[numthreads(!AGENT_THREADS,1,1)]
 void main(uint3 tid : SV_DispatchThreadID)
 {
     if (tid.x >= !NUM_AGENTS) return;
@@ -133,19 +159,36 @@ void main(uint3 tid : SV_DispatchThreadID)
     }
 
     // MOTOR
-    
-    if (pos.x < 0 || pos.x >= !WIDTH || pos.y < 0 || pos.y >= !HEIGHT)
+    float2 mid = float2(!WIDTH/2., !HEIGHT/2.);
+
+    if ((!RADIAL_CONSTRAINT && distance(pos, mid) >= !HEIGHT / 2) ||
+        pos.x < 0 || pos.x >= !WIDTH || pos.y < 0 || pos.y >= !HEIGHT)
     {
         pos.x = clamp(pos.x, 0, !WIDTH - 1);
         pos.y = clamp(pos.y, 0, !HEIGHT - 1);
+
+        if(!RADIAL_CONSTRAINT) pos = clamp_vector(pos, mid, !HEIGHT / 2);
+
         angle = rand(hash(h)) * 2 * 3.1415;
     }
     else
     {
         int2 coord = int2(pos);
-        float4 res = min(1, trailMapOut[coord] + s.mask * 0.1);
-        
-        if(!DIE_ON_TRAPPED) // give the agents some time to spread out
+
+        float weight = 0.01;
+
+        for(int i=0; i<!NUM_FOODS; i++)
+        {
+            if(distance(coord, foods[i].pos) < foods[i].radius)
+            {
+                weight = foods[i].weight;
+                break;
+            }
+        }
+
+        float4 res = min(1, trailMapOut[coord] + s.mask * weight);
+
+        if(!DIE_ON_TRAPPED)
         {
             if(ceil(res.r) + ceil(res.g) + ceil(res.b) > 1 && time[0] > !DEATH_TIME)
             {

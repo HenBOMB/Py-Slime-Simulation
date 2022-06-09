@@ -1,11 +1,11 @@
 {
-    "width" :           930,
-    "height" :          540,
-    "agent_count" :     1000,
-    "steps_per_frame" : 10,
-    "spawn_mode" :      2,
-    "decay_rate":       0.01,
-    "blur_rate":        0.1,
+    "width" :           200,
+    "height" :          200,
+    "agent_count" :     400,
+    "steps_per_frame" : 30,
+    "spawn_mode" :      0,
+    "decay_rate":       0.1,
+    "blur_rate":        1,
     "species": [
         [ 45, 45, 9, 1, 1, [0.5, 0, 0.5] ]
     ]

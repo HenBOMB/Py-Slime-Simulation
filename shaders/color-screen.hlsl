@@ -9,14 +9,28 @@ struct Species
     int4 mask;
 };
 
+struct Food
+{
+    int2 pos;
+    float radius;
+    float weight;
+};
+
 Texture2D<float4> trailMap : register(t0);
-StructuredBuffer<Species> species : register(t1);
-Texture2D<float4> blurTexture : register(t2);
+Texture2D<float4> agentsTexture : register(t1);
+StructuredBuffer<Species> species : register(t2);
+Texture2D<float4> blurTexture : register(t3);
+StructuredBuffer<Food> foods : register(t4);
 
 RWTexture2D<float4> displayTexture : register(u0);
-RWTexture2D<float4> agentsTexture : register(u1);
+RWTexture2D<float4> outAgentsTexture : register(u1);
 
-[numthreads(32,32,1)]
+float distance(int2 from, int2 to)
+{
+    return sqrt((from.x - to.x) * (from.x - to.x)) + sqrt((from.y - to.y) * (from.y - to.y));
+}
+
+[numthreads(!TEXTURE_THREADS,!TEXTURE_THREADS,1)]
 void main(uint3 tid : SV_DispatchThreadID)
 {
 	if (tid.x < 0 || tid.x >= !WIDTH || tid.y < 0 || tid.y >= !HEIGHT) return;
@@ -24,7 +38,7 @@ void main(uint3 tid : SV_DispatchThreadID)
 	if(!DRAW_AGENTS_ONLY)
 	{
 		displayTexture[tid.xy] = agentsTexture[tid.xy];
-		agentsTexture[tid.xy] = 0;
+		outAgentsTexture[tid.xy] = 0;
 		return;
 	}
 
@@ -33,8 +47,20 @@ void main(uint3 tid : SV_DispatchThreadID)
 	for(int i=0; i<!NUM_SPECIES; i++)
 		color += species[i].color * dot(trailMap[tid.xy], int4(i==0, i==1, i==2, i==3)); 
 
+	if(!DRAW_FOODS)
+	{
+		for(int i=0; i<!NUM_FOODS; i++)
+		{
+			if(distance(tid.xy, foods[i].pos) < foods[i].radius)
+			{
+				color += 0.2;
+				break;
+			}
+		}
+	}
+
 	displayTexture[tid.xy] = saturate(color + blurTexture[tid.xy]);
-	agentsTexture[tid.xy] = agentsTexture[tid.xy] * (1 - !DECAY_RATE);
+	outAgentsTexture[tid.xy] = 0;
 
 	// float mask = (trailMap[tid.xy].r + trailMap[tid.xy].g + trailMap[tid.xy].b) / 3;
 
