@@ -4,7 +4,6 @@
     "agent_count":      250000,
     "steps_per_frame":  1,
     "spawn_mode":       2,
-    "hard_avoidance":   false,
     "decay_rate":       0.0075,
     "blur_rate":        0.03,
     "species": [
