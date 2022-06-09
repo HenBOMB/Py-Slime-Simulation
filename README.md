@@ -3,6 +3,8 @@ Simple artificial life python pogram based on this [slime simulation paper](http
 
 *"Characteristics of Pattern Formation and Evolution in Approximations of Physarum Transport Networks"*
 
+![preview](https://user-images.githubusercontent.com/58308591/172806152-beb0f50a-022d-442f-a754-de3de231ed75.png)
+
 ##  Default Configuration
 
 ```json
