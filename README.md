@@ -35,10 +35,10 @@ The amount of updates to run per frame (fps auto-capped at 60)
 The starting positions of the agents.
 Could be either of the following:
 > `0` Random position and angle.<br>
-> `1` All at the center with a random angle.<br>
-> `2` Random point in a circle with random angle.<br>
-> `3` Random point in a circle with angle towards the center.<br>
-> `4` R andom point in a circle rim with angle towards the center.
+<br>> `1` All at the center with a random angle.
+<br>> `2` Random point in a circle with random angle.
+<br>> `3` Random point in a circle with angle towards the center.
+<br>> `4` R andom point in a circle rim with angle towards the center.
 
 **```die_on_trapped```**
 The agents will die if they get surrounded by other species agents, cannot move, join another one of their species path or if they collide with other species.
@@ -59,11 +59,11 @@ How fast the agent trails decay/dissapear per frame.
 How much blur to apply to the agent trails per frame.
 
 **`species`**
-**`0:`** SA — FL and FR sensor angle from forward position
-<br>**`1:`** RA — Agent rotation angle
-<br>**`2:`** SO — Sensor offset distance
-<br>**`3:`** SW — Sensor width
-<br>**`4:`** SS — Step size—how far agent moves per step
-<br>**`5:`** Color —  The color of the species
+<br>**`0`** SA: FL and FR sensor angle from forward position
+<br>**`1`** RA: Agent rotation angle
+<br>**`2`** SO: Sensor offset distance
+<br>**`3`** SW: Sensor width
+<br>**`4`** SS: Step size—how far agent moves per step
+<br>**`5`** Color: The color of the species in RGB
 
 *Used [compushady](https://github.com/rdeioris/compushady) to run the `HLSL` compute shaders.*
