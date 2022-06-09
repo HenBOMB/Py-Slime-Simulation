@@ -62,4 +62,15 @@ How much to blur the agent trails per frame.
 <br>**`[3]`** SW: Sensor width. `px`
 <br>**`[5]`** Color: The color of the species in `RGB 0-1 or 0-255`.
 
+## Examples
+
+`a5.json`<br>
+![2022-06-09-04-38-03](https://user-images.githubusercontent.com/58308591/172794499-1cbbc49c-2f35-4570-940f-1f060e566d5f.gif)
+
+`a2.json`<br>
+![2022-06-09-04-57-12](https://user-images.githubusercontent.com/58308591/172796142-fa582528-5d6b-4962-b4a3-a67c3f8a3888.gif)
+
+`a6.json`<br>
+![2022-06-09-05-12-03](https://user-images.githubusercontent.com/58308591/172798796-e7cdc10f-5239-4127-be08-02e399d6c2a7.gif)
+
 ***Used [compushady](https://github.com/rdeioris/compushady) to run the `HLSL` compute shaders.***
