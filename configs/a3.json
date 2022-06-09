@@ -1,16 +1,14 @@
 {
-    "width" :           960,
-    "height" :          540,
-    "agent_count" :     250000,
-    "steps_per_frame" : 1,
-    "spawn_mode" :      2,
-    "die_on_trapped" :  false,
-    "death_time":       20,
+    "width":            960,
+    "height":           540,
+    "agent_count":      250000,
+    "steps_per_frame":  1,
+    "spawn_mode":       2,
     "hard_avoidance":   false,
     "decay_rate":       0.0075,
     "blur_rate":        0.03,
     "species": [
         [ 45, 30, 20, 1, 1, [1, 0.06132078, 0.1610105] ],
-        [ 112, -90, 30, 1, 1, [0.47160125, 0.8301887, 0.105731584] ]
+        [ 112, 90, 30, 1, 1, [0.47160125, 0.8301887, 0.105731584] ]
     ]
 }

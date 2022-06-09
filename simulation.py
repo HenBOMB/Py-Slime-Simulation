@@ -14,29 +14,13 @@ TEXTURE_THREADS = 32
 # Draw only the agents on the screen?
 DRAW_AGENTS_ONLY = False
 
-# # Default values
-# WIDTH, HEIGHT = (0, 0)
-# AGENT_COUNT = 0
-# STEPS_PER_FRAME = 1
-# spawn_mode = 1
-# DIE_ON_TRAPPED = False
-# DEATH_TIME = 20
-# HARD_AVOIDANCE = False
-# DRAW_AGENTS_ONLY = False
-# DECAY_RATE = 0.05
-# BLUR_RATE = .2
-# SPECIES = [
-#     [45, 45, 9, 1, 1, [1, 1, 1]], 
-# ]
-
-swapchain = None
 recording_frames = 0
 recording_images = []
 recording_path = ""
 
-def run(path = "configs/default.json"):
+def run(path):
     config = json.load(open(path))
-    global swapchain
+    defaults = json.load(open("configs/defaults.json"))
     global recording_frames
     global recording_images
     global recording_path
@@ -45,16 +29,20 @@ def run(path = "configs/default.json"):
     # INIT
     #####################
 
-    WIDTH, HEIGHT = (config["width"], config["height"])
-    AGENT_COUNT = config["agent_count"]
-    STEPS_PER_FRAME = config["steps_per_frame"]
-    SPAWN_MODE = config["spawn_mode"]
-    DIE_ON_TRAPPED = config["die_on_trapped"]
-    DEATH_TIME = config["death_time"]
-    HARD_AVOIDANCE = config["hard_avoidance"]
-    DECAY_RATE = config["decay_rate"]
-    BLUR_RATE = config["blur_rate"]
-    SPECIES = config["species"]
+    def getProperty(name):
+        return config[name] if name in config else defaults[name]
+
+    WIDTH           = getProperty("width")
+    HEIGHT          = getProperty("height")
+    AGENT_COUNT     = getProperty("agent_count")
+    STEPS_PER_FRAME = getProperty("steps_per_frame")
+    SPAWN_MODE      = getProperty("spawn_mode")
+    DIE_ON_TRAPPED  = getProperty("die_on_trapped")
+    DEATH_TIME      = getProperty("death_time")
+    HARD_AVOIDANCE  = getProperty("hard_avoidance")
+    DECAY_RATE      = getProperty("decay_rate")
+    BLUR_RATE       = getProperty("blur_rate")
+    SPECIES         = getProperty("species")
 
     AGENT_COUNT = (AGENT_COUNT // AGENT_THREADS) * AGENT_THREADS
     HEIGHT = (HEIGHT // TEXTURE_THREADS) * TEXTURE_THREADS
@@ -65,6 +53,7 @@ def run(path = "configs/default.json"):
     #####################
 
     display_texture = Texture2D(WIDTH, HEIGHT, ENCODING_FORMAT)
+    blur_texture = Texture2D(WIDTH, HEIGHT, ENCODING_FORMAT)
     diffused_trail_map = Texture2D(WIDTH, HEIGHT, ENCODING_FORMAT)
     display_agents_texture = Texture2D(WIDTH, HEIGHT, ENCODING_FORMAT)
     record_buffer = Buffer(display_texture.size, HEAP_READBACK)
@@ -120,83 +109,85 @@ def run(path = "configs/default.json"):
     readback_agents = Buffer(output_agents.size, HEAP_READBACK)
     source_agents = Buffer(output_agents.size, stride=stride, heap=HEAP_UPLOAD)
 
-    if SPAWN_MODE == 0:
-        data = b''.join([struct.pack(format,
-        *[
-            random.random() * WIDTH,
-            random.random() * HEIGHT,
-            random.random() * 2. * math.pi,
-            random.randint(0, len(SPECIES)-1),
-            True
-        ]) for _ in range(AGENT_COUNT)])
-
-    elif SPAWN_MODE == 1:
-        data = b''.join([struct.pack(format,
-        *[
-            WIDTH  / 2.,
-            HEIGHT / 2.,
-            random.random() * 2 * math.pi,
-            random.randint(0, len(SPECIES)-1),
-            True
-        ]) for _ in range(AGENT_COUNT)])
-
-    elif SPAWN_MODE == 2:
-        def genData():
-            theta = random.random() * 2. * math.pi
-            radius = HEIGHT / 2. * random.random() - HEIGHT / 10
-            return [
-                WIDTH  / 2. + math.cos(theta) * radius, 
-                HEIGHT / 2. + math.sin(theta) * radius, 
-                theta,
+    def generateAgentsData():
+        if SPAWN_MODE == 0:
+            data = b''.join([struct.pack(format,
+            *[
+                random.random() * WIDTH,
+                random.random() * HEIGHT,
+                random.random() * 2. * math.pi,
                 random.randint(0, len(SPECIES)-1),
                 True
-            ]
-        data = b''.join([struct.pack(format, *genData()) for _ in range(AGENT_COUNT)])
+            ]) for _ in range(AGENT_COUNT)])
 
-    elif SPAWN_MODE == 3:
-        def genData():
-            theta = random.random() * 2. * math.pi
-            radius = HEIGHT / 2. * random.random() - HEIGHT / 10
-            pos = (
-                WIDTH  / 2. + math.cos(theta) * radius, 
-                HEIGHT / 2. + math.sin(theta) * radius
-            )
-            angle = math.atan2(
-                (HEIGHT / 2. - pos[1]) / np.sqrt(np.sum((HEIGHT / 2. - pos[1])**2)),
-                (WIDTH  / 2. - pos[0]) / np.sqrt(np.sum((WIDTH  / 2. - pos[0])**2))
-            )
-            return [
-                pos[0], 
-                pos[1], 
-                angle,
+        elif SPAWN_MODE == 1:
+            data = b''.join([struct.pack(format,
+            *[
+                WIDTH  / 2.,
+                HEIGHT / 2.,
+                random.random() * 2 * math.pi,
                 random.randint(0, len(SPECIES)-1),
                 True
-            ]
-        data = b''.join([struct.pack(format, *genData()) for _ in range(AGENT_COUNT)])
+            ]) for _ in range(AGENT_COUNT)])
 
-    else:
-        def genData():
-            theta = random.random() * 2. * math.pi
-            radius = HEIGHT / 2. - HEIGHT / 10
-            pos = (
-                WIDTH  / 2. + math.cos(theta) * radius,
-                HEIGHT / 2. + math.sin(theta) * radius
-            )
-            angle = math.atan2(
-                (HEIGHT / 2. - pos[1]) / np.sqrt(np.sum((HEIGHT / 2. - pos[1])**2)),
-                (WIDTH  / 2. - pos[0]) / np.sqrt(np.sum((WIDTH  / 2. - pos[0])**2))
-            )
-            return [
-                pos[0], 
-                pos[1], 
-                angle, 
-                random.randint(0, len(SPECIES)-1),
-                True
-            ]
-        data = b''.join([struct.pack(format, *genData()) for _ in range(AGENT_COUNT)])
+        elif SPAWN_MODE == 2:
+            def genData():
+                theta = random.random() * 2. * math.pi
+                radius = HEIGHT / 2. * random.random() - HEIGHT / 10
+                return [
+                    WIDTH  / 2. + math.cos(theta) * radius, 
+                    HEIGHT / 2. + math.sin(theta) * radius, 
+                    theta,
+                    random.randint(0, len(SPECIES)-1),
+                    True
+                ]
+            data = b''.join([struct.pack(format, *genData()) for _ in range(AGENT_COUNT)])
 
-    source_agents.upload(data)
+        elif SPAWN_MODE == 3:
+            def genData():
+                theta = random.random() * 2. * math.pi
+                radius = HEIGHT / 2. * random.random() - HEIGHT / 10
+                pos = (
+                    WIDTH  / 2. + math.cos(theta) * radius, 
+                    HEIGHT / 2. + math.sin(theta) * radius
+                )
+                angle = math.atan2(
+                    (HEIGHT / 2. - pos[1]) / np.sqrt(np.sum((HEIGHT / 2. - pos[1])**2)),
+                    (WIDTH  / 2. - pos[0]) / np.sqrt(np.sum((WIDTH  / 2. - pos[0])**2))
+                )
+                return [
+                    pos[0], 
+                    pos[1], 
+                    angle,
+                    random.randint(0, len(SPECIES)-1),
+                    True
+                ]
+            data = b''.join([struct.pack(format, *genData()) for _ in range(AGENT_COUNT)])
 
+        else:
+            def genData():
+                theta = random.random() * 2. * math.pi
+                radius = HEIGHT / 2. - HEIGHT / 10
+                pos = (
+                    WIDTH  / 2. + math.cos(theta) * radius,
+                    HEIGHT / 2. + math.sin(theta) * radius
+                )
+                angle = math.atan2(
+                    (HEIGHT / 2. - pos[1]) / np.sqrt(np.sum((HEIGHT / 2. - pos[1])**2)),
+                    (WIDTH  / 2. - pos[0]) / np.sqrt(np.sum((WIDTH  / 2. - pos[0])**2))
+                )
+                return [
+                    pos[0], 
+                    pos[1], 
+                    angle, 
+                    random.randint(0, len(SPECIES)-1),
+                    True
+                ]
+            data = b''.join([struct.pack(format, *genData()) for _ in range(AGENT_COUNT)])
+
+        source_agents.upload(data)
+
+    generateAgentsData()
     #####################
     # TIME BUFFER
     #####################
@@ -230,8 +221,10 @@ def run(path = "configs/default.json"):
         "compute-trails",   [diffused_trail_map], [diffused_trail_map])
     compute_agents_texture = loadShader(
         "color-agents",     [source_agents], [display_agents_texture])
-    compute_final_texture = loadShader(
-        "color-screen",     [diffused_trail_map, species_buffer], [display_texture, display_agents_texture])
+    compute_display_texture = loadShader(
+        "color-screen",     [diffused_trail_map, species_buffer, blur_texture], [display_texture, display_agents_texture])
+
+    compute_blur_shader = loadShader("blur", [blur_texture], [blur_texture])
 
     #####################
     # WINDOW
@@ -256,8 +249,21 @@ def run(path = "configs/default.json"):
 
     def computeDraw():
         if(DRAW_AGENTS_ONLY): compute_agents_texture.dispatch(WIDTH // AGENT_THREADS, 1, 1)
-        compute_final_texture.dispatch(WIDTH // TEXTURE_THREADS, HEIGHT // TEXTURE_THREADS, 1)
-    
+
+        # clear the texture
+        Buffer(display_texture.size, HEAP_UPLOAD).copy_to(blur_texture)
+
+        compute_display_texture.dispatch(WIDTH // TEXTURE_THREADS, HEIGHT // TEXTURE_THREADS, 1)
+
+        display_texture.copy_to(blur_texture)
+
+        compute_blur_shader.dispatch(WIDTH // TEXTURE_THREADS, HEIGHT // TEXTURE_THREADS, 1)
+        compute_blur_shader.dispatch(WIDTH // TEXTURE_THREADS, HEIGHT // TEXTURE_THREADS, 1)
+        compute_blur_shader.dispatch(WIDTH // TEXTURE_THREADS, HEIGHT // TEXTURE_THREADS, 1)
+        compute_blur_shader.dispatch(WIDTH // TEXTURE_THREADS, HEIGHT // TEXTURE_THREADS, 1)
+
+        compute_display_texture.dispatch(WIDTH // TEXTURE_THREADS, HEIGHT // TEXTURE_THREADS, 1)
+        
     glfw.init()
     glfw.window_hint(glfw.CLIENT_API, glfw.NO_API)
 
@@ -270,7 +276,12 @@ def run(path = "configs/default.json"):
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
-            
+
+        if glfw.get_key(window, glfw.KEY_R):
+            generateAgentsData()
+            Buffer(display_texture.size, HEAP_UPLOAD).copy_to(diffused_trail_map)
+            continue
+
         for _ in range(STEPS_PER_FRAME):
             computeSimulation()
                 
@@ -302,8 +313,3 @@ def record(frames, path = "recording.gif"):
     recording_images = []
     recording_frames = frames + 1
     recording_path = path
-
-def terminate():
-    global swapchain
-    swapchain = None
-    glfw.terminate()
