@@ -30,7 +30,7 @@ Buffer<float> time : register(t2);
 Texture2D<float4> trailMapIn : register(t0);
 StructuredBuffer<Agent> agentsIn : register(t1);
 StructuredBuffer<Species> species : register(t3);
-StructuredBuffer<Food> foods : register(t4);
+StructuredBuffer<Food> food : register(t4);
 Texture2D<float4> agentsTexture : register(t5);
 
 RWTexture2D<float4> trailMapOut : register(u0);
@@ -168,11 +168,11 @@ void main(uint3 tid : SV_DispatchThreadID)
     {
         float weight = 0.1;
 
-        for(int i=0; i<!NUM_FOODS; i++)
+        for(int i=0; i<!NUM_FOOD; i++)
         {
-            if(distance(coord, foods[i].pos) < foods[i].radius)
+            if(distance(coord, food[i].pos) < food[i].radius)
             {
-                weight = foods[i].weight;
+                weight = food[i].weight;
                 break;
             }
         }

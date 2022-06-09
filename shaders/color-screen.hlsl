@@ -20,7 +20,7 @@ Texture2D<float4> trailMap : register(t0);
 Texture2D<float4> agentsTexture : register(t1);
 StructuredBuffer<Species> species : register(t2);
 Texture2D<float4> blurTexture : register(t3);
-StructuredBuffer<Food> foods : register(t4);
+StructuredBuffer<Food> food : register(t4);
 
 RWTexture2D<float4> displayTexture : register(u0);
 RWTexture2D<float4> agentsTextureOut : register(u1);
@@ -47,11 +47,11 @@ void main(uint3 tid : SV_DispatchThreadID)
 	for(int i=0; i<!NUM_SPECIES; i++)
 		color += species[i].color * dot(trailMap[tid.xy], int4(i==0, i==1, i==2, i==3)); 
 
-	if(!DRAW_FOODS)
+	if(!DRAW_FOOD)
 	{
-		for(int i=0; i<!NUM_FOODS; i++)
+		for(int i=0; i<!NUM_FOOD; i++)
 		{
-			if(distance(tid.xy, foods[i].pos) < foods[i].radius)
+			if(distance(tid.xy, food[i].pos) < food[i].radius)
 			{
 				color += 0.2;
 				break;
