@@ -1,5 +1,4 @@
 import math, glfw, random, struct, platform, time, json
-from pydoc import describe
 import numpy as np
 from PIL import Image
 
@@ -12,10 +11,11 @@ AGENT_THREADS = 32
 TEXTURE_THREADS = 32
 
 # Draw only the agents on the screen?
-DRAW_AGENTS_ONLY = True
+DRAW_AGENTS_ONLY = False
 # Draw a faint glow of where the foods are
 DRAW_FOODS = False
 # Constrains the agents to a circle boundary (height/2)
+# TODO: For some reason this isn't working..
 RADIAL_CONSTRAINT = True
 
 recording_frames = 0
@@ -72,7 +72,7 @@ def run(path, width_override = 0, height_override = 0):
     display_texture = Texture2D(WIDTH, HEIGHT, ENCODING_FORMAT)
     blur_texture = Texture2D(WIDTH, HEIGHT, ENCODING_FORMAT)
     diffused_trail_map = Texture2D(WIDTH, HEIGHT, ENCODING_FORMAT)
-    display_agents_texture = Texture2D(WIDTH, HEIGHT, ENCODING_FORMAT)
+    agents_texture = Texture2D(WIDTH, HEIGHT, ENCODING_FORMAT)
     record_buffer = Buffer(display_texture.size, HEAP_READBACK)
 
     bff = Buffer(display_texture.size, HEAP_UPLOAD)
@@ -248,17 +248,17 @@ def run(path, width_override = 0, height_override = 0):
         return Compute(hlsl.compile(s), [], srv, uav)
 
     compute_agents = loadShader(
-        "compute-agents",   [diffused_trail_map, source_agents, time_buffer, species_buffer, foods_buffer],
-                            [diffused_trail_map, output_agents])
+        "compute-agents",   [diffused_trail_map, source_agents, time_buffer, species_buffer, foods_buffer, agents_texture],
+                            [diffused_trail_map, output_agents, agents_texture])
     compute_trails = loadShader(
         "compute-trails",   [diffused_trail_map], 
                             [diffused_trail_map])
     compute_agents_texture = loadShader(
         "color-agents",     [source_agents], 
-                            [display_agents_texture])
+                            [agents_texture])
     compute_display_texture = loadShader(
-        "color-screen",     [diffused_trail_map, display_agents_texture, species_buffer, blur_texture, foods_buffer], 
-                            [display_texture, display_agents_texture])
+        "color-screen",     [diffused_trail_map, agents_texture, species_buffer, blur_texture, foods_buffer], 
+                            [display_texture, agents_texture])
 
     compute_blur_shader = loadShader("blur", [blur_texture], [blur_texture])
 
@@ -286,6 +286,7 @@ def run(path, width_override = 0, height_override = 0):
     def computeDraw():
         if(DRAW_AGENTS_ONLY): 
             compute_agents_texture.dispatch(AGENT_COUNT // AGENT_THREADS, 1, 1)
+            # clear the texture
             Buffer(display_texture.size, HEAP_UPLOAD).copy_to(blur_texture)
             compute_display_texture.dispatch(WIDTH // TEXTURE_THREADS, HEIGHT // TEXTURE_THREADS, 1)
             return

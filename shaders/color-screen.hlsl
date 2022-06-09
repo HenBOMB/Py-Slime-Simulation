@@ -23,7 +23,7 @@ Texture2D<float4> blurTexture : register(t3);
 StructuredBuffer<Food> foods : register(t4);
 
 RWTexture2D<float4> displayTexture : register(u0);
-RWTexture2D<float4> outAgentsTexture : register(u1);
+RWTexture2D<float4> agentsTextureOut : register(u1);
 
 float distance(int2 from, int2 to)
 {
@@ -38,7 +38,7 @@ void main(uint3 tid : SV_DispatchThreadID)
 	if(!DRAW_AGENTS_ONLY)
 	{
 		displayTexture[tid.xy] = agentsTexture[tid.xy];
-		outAgentsTexture[tid.xy] = 0;
+		// agentsTextureOut[tid.xy] = 0;
 		return;
 	}
 
@@ -60,7 +60,7 @@ void main(uint3 tid : SV_DispatchThreadID)
 	}
 
 	displayTexture[tid.xy] = saturate(color + blurTexture[tid.xy]);
-	outAgentsTexture[tid.xy] = 0;
+	// agentsTextureOut[tid.xy] = 0;
 
 	// float mask = (trailMap[tid.xy].r + trailMap[tid.xy].g + trailMap[tid.xy].b) / 3;
 

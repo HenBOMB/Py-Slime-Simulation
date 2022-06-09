@@ -69,12 +69,12 @@ float sense(Agent agent, Species s, float sensor_angle_offset)
 	for(int x = -s.sw; x <= s.sw; x++)
 	    for(int y = -s.sw; y <= s.sw; y++)
         {
-            sum += trailMapIn[uint2(clamp(sensor.x + x, 0, !WIDTH - 1), clamp(sensor.y + y, 0, !HEIGHT - 1)).xy];
-            // float4 res = trailMapIn[uint2(clamp(sensor.x + x, 0, !WIDTH - 1), clamp(sensor.y + y, 0, !HEIGHT - 1)).xy];
-            // sum += dot(
-            //     res,
-            //     weight
-            // );
+            float4 res = trailMapIn[uint2(clamp(sensor.x + x, 0, !WIDTH - 1), clamp(sensor.y + y, 0, !HEIGHT - 1)).xy];
+            if(!HARD_AVOIDANCE && ceil(res.r) + ceil(res.g) + ceil(res.b) > 1) return -1;
+            sum += dot(
+                res,
+                weight
+            );
         }
         
     return sum;
@@ -113,60 +113,80 @@ void main(uint3 tid : SV_DispatchThreadID)
 
     uint h = hash(pos.y * !WIDTH + pos.x + angle + hash(tid.x + time[0] * 100000));
 
-    // SENSOR //
+    // SENSOR
     
 	float forward   = sense(agentsIn[tid.x], s,     0);
 	float right     = sense(agentsIn[tid.x], s,  s.sa);
 	float left      = sense(agentsIn[tid.x], s, -s.sa);
 	
-    float rng = 1;//rand(h);
+    float rng = rand(h);
 
-    if(forward > right && forward > left)                   angle += 0;
-    else if(forward < right && forward < left && rng == 1)  angle += rand(h) > 0.5? s.ra : -s.ra;
-    else if(forward < right && forward < left && rng != 1)  angle += (rng - .5) * 2 * s.ra;
-    else if(left > right)                                   angle -= s.ra * rng;
-    else if(right > left)                                   angle += s.ra * rng;
-    
-    // MOTOR
-
-    // Attempt to move forward one step in the current direction
-    pos += dir;
-    int2 coord = int2(pos);
-
-    // If next site is occupied
-    // Remain in it's current position, no chemoattractant is deposited, and a new orientation is randomly selected
-    if(agentsTexture[coord.xy].r != 0)
+    if(!HARD_AVOIDANCE)
     {
-        agentsOut[tid.x].pos = agentsIn[tid.x].pos;
-        agentsOut[tid.x].angle = rand(hash(h)) * 2 * 3.1415;
-        agentsOut[tid.x].speciesIndex = agentsIn[tid.x].speciesIndex;
-        agentsOut[tid.x].alive = agentsIn[tid.x].alive;
-        agentsTextureOut[int2(agentsIn[tid.x].pos).xy] = 1;
-        return;
+        float prevAngle = -100;
+
+        if(forward > right && forward > left)
+        {
+            if(forward < 0) prevAngle = angle;
+        }
+        else if(forward < right && forward < left)
+        {
+            if(rng == 1) angle += (rng - .5) * 2 * s.ra;
+            else angle += rand(h) > 0.5? s.ra : -s.ra;
+            if(right < 0 || left < 0) prevAngle = angle;
+        }
+        else if(left > right)
+        {
+            angle -= s.ra * rng;
+            if(left < 0) prevAngle = angle;
+        }
+        else if(right > left)
+        {
+            angle += s.ra * rng;
+            if(right < 0) prevAngle = angle;
+        }
+
+        // MOTOR
+        if(angle != prevAngle) pos += dir;
+    }
+    else
+    {
+        if(forward > right && forward > left)                   angle += 0;
+        else if(forward < right && forward < left && rng == 1)  angle += rand(h) > 0.5? s.ra : -s.ra;
+        else if(forward < right && forward < left && rng != 1)  angle += (rng - .5) * 2 * s.ra;
+        else if(left > right)                                   angle -= s.ra * rng;
+        else if(right > left)                                   angle += s.ra * rng;
+
+        agentsTextureOut[int2(pos).xy] = 0;
+
+        // MOTOR
+        pos += dir;
+
+        // if there is already an agent in this to-move cell
+        if(agentsTexture[int2(pos).xy].r != 0)
+        {
+            pos -= dir;
+            angle = rand(hash(h)) * 2 * 3.1415;
+        }
     }
 
-    agentsTextureOut[int2(agentsIn[tid.x].pos).xy] = 0;
-    agentsTextureOut[coord.xy] = 1;
-
+    // MOTOR
     float2 mid = float2(!WIDTH/2., !HEIGHT/2.);
 
-    float boundsOffset = 10;
-
-    // Clamp to bounds
-    if ((!RADIAL_CONSTRAINT && distance(pos, mid) >= !HEIGHT / 2) 
-        || pos.x < boundsOffset || pos.x >= !WIDTH - boundsOffset || pos.y < boundsOffset || pos.y >= !HEIGHT - boundsOffset)
+    if ((!RADIAL_CONSTRAINT && distance(pos, mid) >= !HEIGHT / 2) || pos.x < 0 || pos.x >= !WIDTH || pos.y < 0 || pos.y >= !HEIGHT)
     {
-        pos.x = clamp(pos.x, 0, !WIDTH - 1 - boundsOffset);
-        pos.y = clamp(pos.y, 0, !HEIGHT - 1 - boundsOffset);
+        pos.x = clamp(pos.x, 0, !WIDTH - 1);
+        pos.y = clamp(pos.y, 0, !HEIGHT - 1);
 
         if(!RADIAL_CONSTRAINT) pos = clamp_vector(pos, mid, !HEIGHT / 2);
 
         angle = rand(hash(h)) * 2 * 3.1415;
     }
-    // Deposit a constant chemoattractant value
     else
     {
-        float weight = 0.1;
+        int2 coord = int2(pos);
+
+        float weight = 0.01;
 
         for(int i=0; i<!NUM_FOODS; i++)
         {
@@ -177,7 +197,7 @@ void main(uint3 tid : SV_DispatchThreadID)
             }
         }
 
-        float4 res = clamp(s.mask, 0, 1) * weight * 5;
+        float4 res = min(1, trailMapOut[coord] + s.mask * weight);
 
         if(!DIE_ON_TRAPPED)
         {
@@ -197,7 +217,7 @@ void main(uint3 tid : SV_DispatchThreadID)
         }
     }
 
-    // Update the agents
+    agentsTextureOut[int2(pos).xy] = 1;
 
     agentsOut[tid.x].pos = pos;
     agentsOut[tid.x].angle = angle;
