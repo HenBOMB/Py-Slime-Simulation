@@ -6,19 +6,19 @@ Simple python pogram based on this [slime simulation paper](https://uwe-reposito
 
 ```json
 {
-    "width" :           960,
-    "height" :          540,
-    "agent_count" :     20000,
-    "steps_per_frame" : 1,
-    "starting_mode" :   1,
-    "die_on_trapped" :  false,
+    "width":            960,
+    "height":           540,
+    "agent_count" :     10000,
+    "steps_per_frame":  1,
+    "starting_mode":    1,
+    "die_on_trapped":   false,
     "death_time":       20,
     "hard_avoidance":   false,
     "draw_agents_only": false,
-    "decay_rate":       0.005,
+    "decay_rate":       0.01,
     "blur_rate":        0.2,
-    "species": [
-        [ 22.5, 45, 9, 1, 1, [1, 1, 1] ], 
+    "species":          [
+        [ 22.5, 45, 9, 1, 1, [1, 1, 1] ]
     ]
 }
 ```
@@ -57,5 +57,13 @@ How fast the agent trails decay/dissapear per frame.
 
 **`blur_rate`**
 How much blur to apply to the agent trails per frame.
+
+**`species`**
+> **`0: SA`** FL and FR sensor angle from forward position
+> **`1: RA`** Agent rotation angle
+> **`2: SO`** Sensor offset distance
+> **`3: SS`** Sensor width
+> **`4: SW`** Step size—how far agent moves per step
+> **`5: Color`** The color of the species
 
 *Used [compushady](https://github.com/rdeioris/compushady) to run the `HLSL` compute shaders.*
