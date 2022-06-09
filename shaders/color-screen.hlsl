@@ -27,12 +27,12 @@ void main(uint3 tid : SV_DispatchThreadID)
 		return;
 	}
 
-	if(!DRAW_RAW)
-	{
-		displayTexture[tid.xy] = trailMap[tid.xy];
-		agentsTexture[tid.xy] = 0;
-		return;
-	}
+	// if(!DRAW_RAW)
+	// {
+	// 	displayTexture[tid.xy] = trailMap[tid.xy];
+	// 	agentsTexture[tid.xy] = 0;
+	// 	return;
+	// }
 
 	float4 color = 0;
 

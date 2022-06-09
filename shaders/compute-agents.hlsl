@@ -145,12 +145,16 @@ void main(uint3 tid : SV_DispatchThreadID)
         int2 coord = int2(pos);
         float4 res = min(1, trailMapOut[coord] + s.mask * 0.5);
         
-        if(!DIE_ON_TRAPPED && time[0] > 4) // give the agents some time to spread out
+        if(!DIE_ON_TRAPPED) // give the agents some time to spread out
         {
-            if(ceil(res.r) + ceil(res.g) + ceil(res.b) > 1)
+            if(ceil(res.r) + ceil(res.g) + ceil(res.b) > 1 && time[0] > !DEATH_TIME)
             {
                 agentsOut[tid.x].alive = false;
                 return;
+            }
+            else
+            {
+		        trailMapOut[coord] = res;
             }
         }
         else
