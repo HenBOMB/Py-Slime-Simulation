@@ -58,5 +58,4 @@ How fast the agent trails decay/dissapear per frame.
 **`blur_rate`**
 How much blur to apply to the agent trails per frame.
 
-Compute shader lib used: https://github.com/rdeioris/compushady
-
+*Used [compushady](https://github.com/rdeioris/compushady) to run the `HLSL` compute shaders.*
