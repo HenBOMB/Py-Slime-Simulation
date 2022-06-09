@@ -58,7 +58,7 @@ How much to decay/dissapear the agent trails per frame.
 **`blur_rate`**
 How much to blur the agent trails per frame.
 
-**`species`** Array containing all the to simulate species
+**`species`** Array containing all the spieces to simulate. **`(max 4)`**
 <br>**`[0]`** SA: FL and FR sensor angle from forward position. `deg`
 <br>**`[1]`** RA: Agent rotation angle. `deg`
 <br>**`[2]`** SO: Sensor offset distance. `px`
@@ -66,4 +66,4 @@ How much to blur the agent trails per frame.
 <br>**`[4]`** SS: Step size, how far agent moves per step. `px`
 <br>**`[5]`** Color: The color of the species in `RGB 0-1 or 0-255`.
 
-#####*Used [compushady](https://github.com/rdeioris/compushady) to run the `HLSL` compute shaders.*
+***Used [compushady](https://github.com/rdeioris/compushady) to run the `HLSL` compute shaders.***
