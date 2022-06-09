@@ -27,43 +27,26 @@ Simple artificial life python pogram based on this [slime simulation paper](http
 
 ### What each property does
 
-**`agent_count`**
-The amount of agents to run in the simulation.
-
-**`steps_per_frame`**
-The amount of updates to run per frame (fps auto-capped at 60)
-
-**`spawn_mode`**
-How the agents spawn when starting the simulation.
-Could be either of the following:
-<br>`0` Random position and angle.
-<br>`1` All at the center with a random angle.
-<br>`2` Random point in a circle with random angle.
-<br>`3` Random point in a circle with angle towards the center.
-<br>`4` R andom point in a circle rim with angle towards the center.
-
-**`agent_overlapping`**
-When false, agents cannot move to a cell where another agent already is.
-
-**`radial_boundary`**
-Sets the agents boundary to a circle `(height/2)`
-
-**`border`**
-Border boundary offset.
-
-**`decay_rate`**
-How much to decay the agent trails per frame.
-
-**`blur_rate`**
-How much to blur the agent trails per frame.
-
-**`species`** Array containing all the spieces to simulate. **`(max 4)`**
-<br>**`[0]`** SA: FL and FR sensor angle from forward position. `deg`
-<br>**`[1]`** RA: Agent rotation angle. `deg`
-<br>**`[2]`** SO: Sensor offset distance. `px`
-<br>**`[4]`** SS: Step size, how far agent moves per step. `px`
-<br>**`[3]`** SW: Sensor width. `px`
-<br>**`[5]`** Color: The color of the species in `RGB 0-1 or 0-255`.
+* ```agent_count```: The amount of agents to run in the simulation
+* ```steps_per_frame```: The amount of updates to run per frame (fps auto-capped at 60)
+* ```spawn_mode```: How the agents spawn when starting the simulation
+<br>**0**: Random position and angle
+<br>**1**: All at the center with a random angle
+<br>**2**: Random point in a circle with random angle
+<br>**3**: Random point in a circle with angle towards the center
+<br>**4**: Random point in a circle rim with angle towards the center
+* ```agent_overlapping```: When false, agents cannot move to a cell where another agent already is
+* ```radial_boundary```: Sets the agents boundary to a circle `(height/2)`
+* ```border```: Border boundary offset
+* ```decay_rate```: How much to decay the agent trails per frame
+* ```blur_rate```: How much to blur the agent trails per frame
+* ```species```:  Array containing all the spieces to simulate. **`(max 4)`**
+<br>**[0]** SA: FL and FR sensor angle from forward position. `deg`
+<br>**[1]** RA: Agent rotation angle. `deg`
+<br>**[2]** SO: Sensor offset distance. `px`
+<br>**[4]** SS: Step size, how far agent moves per step. `px`
+<br>**[3]** SW: Sensor width. `px`
+<br>**[5]** Color: The color of the species in `RGB 0-1 or 0-255`.
 
 ## Examples
 
