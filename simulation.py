@@ -1,4 +1,4 @@
-import math, glfw, random, struct, platform, time
+import math, glfw, random, struct, platform, time, json
 import numpy as np
 
 from compushady import HEAP_UPLOAD, HEAP_READBACK, Swapchain, Buffer, Texture2D, Compute
@@ -25,7 +25,8 @@ TEXTURE_THREADS = 32
 
 swapchain = None
 
-def run(config):
+def run(path = "configs/default.json"):
+    config = json.load(open(path))
     global swapchain
 
     #####################
