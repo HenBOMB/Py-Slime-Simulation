@@ -10,11 +10,10 @@ Simple python pogram based on this [slime simulation paper](https://uwe-reposito
     "height":           540,
     "agent_count" :     10000,
     "steps_per_frame":  1,
-    "starting_mode":    1,
+    "spawn_mode":    1,
     "die_on_trapped":   false,
     "death_time":       20,
     "hard_avoidance":   false,
-    "draw_agents_only": false,
     "decay_rate":       0.01,
     "blur_rate":        0.2,
     "species":          [
@@ -31,10 +30,10 @@ The amount of agents to run in the simulation.
 **`steps_per_frame`**
 The amount of updates to run per frame (fps auto-capped at 60)
 
-**`starting_mode`**
-The starting positions of the agents.
+**`spawn_mode`**
+How the agents spawn when starting the simulation.
 Could be either of the following:
-<br>`= 0` Random position and angle.
+<br>`0` Random position and angle.
 <br>`1` All at the center with a random angle.
 <br>`2` Random point in a circle with random angle.
 <br>`3` Random point in a circle with angle towards the center.
@@ -49,9 +48,6 @@ Agents will start dying after `death_time` seconds, this is to give them time to
 **`hard_avoidance`**
 Does additional checks to minimize the chance of colliding with other species.
 
-**`draw_agents_only`**
-Draw only the agents on the screen.
-
 **`decay_rate`**
 How much to decay the agent trails per frame.
 
@@ -62,8 +58,8 @@ How much to blur the agent trails per frame.
 <br>**`[0]`** SA: FL and FR sensor angle from forward position. `deg`
 <br>**`[1]`** RA: Agent rotation angle. `deg`
 <br>**`[2]`** SO: Sensor offset distance. `px`
-<br>**`[3]`** SW: Sensor width. `px`
 <br>**`[4]`** SS: Step size, how far agent moves per step. `px`
+<br>**`[3]`** SW: Sensor width. `px`
 <br>**`[5]`** Color: The color of the species in `RGB 0-1 or 0-255`.
 
 ***Used [compushady](https://github.com/rdeioris/compushady) to run the `HLSL` compute shaders.***

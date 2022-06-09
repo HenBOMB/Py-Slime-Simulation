@@ -90,7 +90,7 @@ void main(uint3 tid : SV_DispatchThreadID)
 	float right     = sense(agentsIn[tid.x], s,  s.sa);
 	float left      = sense(agentsIn[tid.x], s, -s.sa);
 	
-    float rng = 1;//rand(h);
+    float rng = rand(h);
 
     if(!HARD_AVOIDANCE)
     {
@@ -143,7 +143,7 @@ void main(uint3 tid : SV_DispatchThreadID)
     else
     {
         int2 coord = int2(pos);
-        float4 res = min(1, trailMapOut[coord] + s.mask * 0.5);
+        float4 res = min(1, trailMapOut[coord] + s.mask * 0.08);
         
         if(!DIE_ON_TRAPPED) // give the agents some time to spread out
         {

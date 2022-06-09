@@ -1,18 +1,24 @@
 import math, glfw, random, struct, platform, time, json
+from pydoc import describe
 import numpy as np
+from PIL import Image
 
 from compushady import HEAP_UPLOAD, HEAP_READBACK, Swapchain, Buffer, Texture2D, Compute
-from compushady.formats import R16G16B16A16_FLOAT
+from compushady.formats import R16G16B16A16_FLOAT, R8G8B8A8_UNORM
 from compushady.shaders import hlsl
 
+ENCODING_FORMAT = R16G16B16A16_FLOAT
 AGENT_THREADS = 32
 TEXTURE_THREADS = 32
+
+# Draw only the agents on the screen?
+DRAW_AGENTS_ONLY = False
 
 # # Default values
 # WIDTH, HEIGHT = (0, 0)
 # AGENT_COUNT = 0
 # STEPS_PER_FRAME = 1
-# STARTING_MODE = 1
+# spawn_mode = 1
 # DIE_ON_TRAPPED = False
 # DEATH_TIME = 20
 # HARD_AVOIDANCE = False
@@ -24,10 +30,16 @@ TEXTURE_THREADS = 32
 # ]
 
 swapchain = None
+recording_frames = 0
+recording_images = []
+recording_path = ""
 
 def run(path = "configs/default.json"):
     config = json.load(open(path))
     global swapchain
+    global recording_frames
+    global recording_images
+    global recording_path
 
     #####################
     # INIT
@@ -36,11 +48,10 @@ def run(path = "configs/default.json"):
     WIDTH, HEIGHT = (config["width"], config["height"])
     AGENT_COUNT = config["agent_count"]
     STEPS_PER_FRAME = config["steps_per_frame"]
-    STARTING_MODE = config["starting_mode"]
+    SPAWN_MODE = config["spawn_mode"]
     DIE_ON_TRAPPED = config["die_on_trapped"]
     DEATH_TIME = config["death_time"]
     HARD_AVOIDANCE = config["hard_avoidance"]
-    DRAW_AGENTS_ONLY = config["draw_agents_only"]
     DECAY_RATE = config["decay_rate"]
     BLUR_RATE = config["blur_rate"]
     SPECIES = config["species"]
@@ -53,9 +64,15 @@ def run(path = "configs/default.json"):
     # TEXTURE BUFFERS
     #####################
 
-    diffused_trail_map = Texture2D(WIDTH, HEIGHT, R16G16B16A16_FLOAT)
-    display_texture = Texture2D(WIDTH, HEIGHT, R16G16B16A16_FLOAT)
-    display_agents_texture = Texture2D(WIDTH, HEIGHT, R16G16B16A16_FLOAT)
+    display_texture = Texture2D(WIDTH, HEIGHT, ENCODING_FORMAT)
+    diffused_trail_map = Texture2D(WIDTH, HEIGHT, ENCODING_FORMAT)
+    display_agents_texture = Texture2D(WIDTH, HEIGHT, ENCODING_FORMAT)
+    record_buffer = Buffer(display_texture.size, HEAP_READBACK)
+
+    bff = Buffer(display_texture.size, HEAP_UPLOAD)
+    bff.upload(bytes([random.randint(0, 255), random.randint(
+        0, 255), random.randint(0, 255), 255]) * (display_texture.size // 4))
+    bff.copy_to(display_texture)
 
     #####################
     # SPECIES BUFFER
@@ -103,7 +120,7 @@ def run(path = "configs/default.json"):
     readback_agents = Buffer(output_agents.size, HEAP_READBACK)
     source_agents = Buffer(output_agents.size, stride=stride, heap=HEAP_UPLOAD)
 
-    if STARTING_MODE == 0:
+    if SPAWN_MODE == 0:
         data = b''.join([struct.pack(format,
         *[
             random.random() * WIDTH,
@@ -113,7 +130,7 @@ def run(path = "configs/default.json"):
             True
         ]) for _ in range(AGENT_COUNT)])
 
-    elif STARTING_MODE == 1:
+    elif SPAWN_MODE == 1:
         data = b''.join([struct.pack(format,
         *[
             WIDTH  / 2.,
@@ -123,7 +140,7 @@ def run(path = "configs/default.json"):
             True
         ]) for _ in range(AGENT_COUNT)])
 
-    elif STARTING_MODE == 2:
+    elif SPAWN_MODE == 2:
         def genData():
             theta = random.random() * 2. * math.pi
             radius = HEIGHT / 2. * random.random() - HEIGHT / 10
@@ -136,7 +153,7 @@ def run(path = "configs/default.json"):
             ]
         data = b''.join([struct.pack(format, *genData()) for _ in range(AGENT_COUNT)])
 
-    elif STARTING_MODE == 3:
+    elif SPAWN_MODE == 3:
         def genData():
             theta = random.random() * 2. * math.pi
             radius = HEIGHT / 2. * random.random() - HEIGHT / 10
@@ -247,9 +264,9 @@ def run(path = "configs/default.json"):
     window = glfw.create_window(WIDTH, HEIGHT, 'Slime Simulation', None, None)
         
     if platform.system() == 'Windows':
-        swapchain = Swapchain(glfw.get_win32_window(window), R16G16B16A16_FLOAT, 3)
+        swapchain = Swapchain(glfw.get_win32_window(window), ENCODING_FORMAT, 3)
     else:
-        swapchain = Swapchain((glfw.get_x11_display(), glfw.get_x11_window(window)), R16G16B16A16_FLOAT, 3)
+        swapchain = Swapchain((glfw.get_x11_display(), glfw.get_x11_window(window)), ENCODING_FORMAT, 3)
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
@@ -259,11 +276,32 @@ def run(path = "configs/default.json"):
                 
         computeDraw()
 
+        if(recording_frames > 0):
+            display_texture.copy_to(record_buffer)
+            image = Image.new('RGBA', (WIDTH, HEIGHT))
+            image.frombytes(record_buffer.readback())
+            recording_images.append(image)
+            recording_frames -= 1
+            print("frame: {}".format(recording_frames))
+        elif(len(recording_images) > 0):
+            recording_images[0].save(recording_path, save_all=True, append_images=recording_images[1:], duration=150, loop=0)
+            recording_images = []
+
         swapchain.present(display_texture)
 
     swapchain = None
 
     glfw.terminate()
+
+# not working
+def record(frames, path = "recording.gif"):
+    global recording_frames
+    global recording_images
+    global recording_path
+
+    recording_images = []
+    recording_frames = frames + 1
+    recording_path = path
 
 def terminate():
     global swapchain

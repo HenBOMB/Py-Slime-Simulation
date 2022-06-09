@@ -40,7 +40,7 @@ void main(uint3 tid : SV_DispatchThreadID)
 		color += species[i].color * dot(trailMap[tid.xy], int4(i==0, i==1, i==2, i==3)); 
 
 	color = saturate(color);
-
+	
 	// float mask = (trailMap[tid.xy].r + trailMap[tid.xy].g + trailMap[tid.xy].b) / 3;
 
 	// displayTexture[tid.xy] = lerp(saturate(color), color2, mask);

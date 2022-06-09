@@ -2,7 +2,8 @@ import simulation
 
 def main():
     # simulation.run("")
-    simulation.run("configs/a1.json")
+    # simulation.record(30)
+    simulation.run("configs/a4.json")
 
 if __name__ == "__main__":
     main()

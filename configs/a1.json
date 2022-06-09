@@ -3,11 +3,10 @@
     "height"            :   540,
     "agent_count"       :   20000,
     "steps_per_frame"   :   1,
-    "starting_mode"     :   1,
+    "spawn_mode"     :   1,
     "die_on_trapped"    :   false,
     "death_time"        :   20,
     "hard_avoidance"    :   false,
-    "draw_agents_only"  :   false,
     "decay_rate"        :   0.005,
     "blur_rate"         :   0.2,
     "species"           :   [
