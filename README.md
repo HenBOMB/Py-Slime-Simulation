@@ -34,11 +34,11 @@ The amount of updates to run per frame (fps auto-capped at 60)
 **`starting_mode`**
 The starting positions of the agents.
 Could be either of the following:
-`0: random position and angle.`
-`1: all at the center with a random angle.`
-`2: random point in a circle with random angle.`
-`3: random point in a circle with angle towards the center.`
-`4: random point in a circle rim with angle towards the center.`
+> `0: random position and angle.`
+> `1: all at the center with a random angle.`
+> `2: random point in a circle with random angle.`
+> `3: random point in a circle with angle towards the center.`
+> `4: random point in a circle rim with angle towards the center.`
 
 **```die_on_trapped```**
 The agents will die if they get surrounded by other species agents, cannot move, join another one of their species path or if they collide with other species.
