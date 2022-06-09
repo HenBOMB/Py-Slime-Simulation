@@ -332,10 +332,11 @@ def run(path):
             image.frombytes(record_buffer.readback())
             recording_images.append(image)
             recording_frames -= 1
-            print("frame: {}".format(recording_frames))
+            print("frame: {}".format(recording_frames+1))
         elif(len(recording_images) > 0):
             recording_images[0].save(recording_path, save_all=True, append_images=recording_images[1:], duration=150, loop=0)
             recording_images = []
+            print("done!")
 
         swapchain.present(display_texture)
 
@@ -343,7 +344,6 @@ def run(path):
 
     glfw.terminate()
 
-# not working
 def record(frames, path = "recording.gif"):
     global recording_frames
     global recording_images
