@@ -34,10 +34,10 @@ The amount of updates to run per frame (fps auto-capped at 60)
 **`starting_mode`**
 The starting positions of the agents.
 Could be either of the following:
-> `0: random position and angle.`
-> `1: all at the center with a random angle.`
-> `2: random point in a circle with random angle.`
-> `3: random point in a circle with angle towards the center.`
+> `0: random position and angle.`<br>
+> `1: all at the center with a random angle.`<br>
+> `2: random point in a circle with random angle.`<br>
+> `3: random point in a circle with angle towards the center.`<br>
 > `4: random point in a circle rim with angle towards the center.`
 
 **```die_on_trapped```**
