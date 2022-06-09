@@ -59,11 +59,11 @@ How fast the agent trails decay/dissapear per frame.
 How much blur to apply to the agent trails per frame.
 
 **`species`**
-> **`0: SA`** FL and FR sensor angle from forward position
-> **`1: RA`** Agent rotation angle
-> **`2: SO`** Sensor offset distance
-> **`3: SS`** Sensor width
-> **`4: SW`** Step size—how far agent moves per step
-> **`5: Color`** The color of the species
+**`0:`** SA — FL and FR sensor angle from forward position
+**`1:`** RA — Agent rotation angle
+**`2:`** SO — Sensor offset distance
+**`3:`** SW — Sensor width
+**`4:`** SS — Step size—how far agent moves per step
+**`5:`** Color —  The color of the species
 
 *Used [compushady](https://github.com/rdeioris/compushady) to run the `HLSL` compute shaders.*
