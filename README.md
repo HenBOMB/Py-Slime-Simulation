@@ -1,6 +1,8 @@
 # Python Slime-Simulation
 
-Simple python pogram based on this [slime simulation paper](https://uwe-repository.worktribe.com/output/980579), using compute shaders to run the simulation.
+Simple artificial life python pogram based on this [slime simulation paper](https://uwe-repository.worktribe.com/output/980579), using compute shaders to run the simulation.
+
+*"Characteristics of Pattern Formation and Evolution in Approximations of Physarum Transport Networks"*
 
 ##  Default Configuration
 
