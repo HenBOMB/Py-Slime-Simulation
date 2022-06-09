@@ -34,26 +34,26 @@ The amount of updates to run per frame (fps auto-capped at 60)
 **`starting_mode`**
 The starting positions of the agents.
 Could be either of the following:
-<br>`0` Random position and angle.
+<br>`= 0` Random position and angle.
 <br>`1` All at the center with a random angle.
 <br>`2` Random point in a circle with random angle.
 <br>`3` Random point in a circle with angle towards the center.
 <br>`4` R andom point in a circle rim with angle towards the center.
 
 **```die_on_trapped```**
-The agents will die if they get surrounded by other species agents, cannot move, join another one of their species path or if they collide with other species.
+Make the agents die if they get surrounded, cannot move, or collide with other species.
 
 **`death_time`**
-Agents will start dying after `death_time` seconds, this is to give them some time to spread out when spawned, since many will spawn on top of each other.
+Agents will start dying after `death_time` seconds, this is to give them time to spread out when spawned, since many will spawn on top of each other.
 
 **`hard_avoidance`**
-Does additional checks with the attempt of forcing the agent to avoid other species as much as possible.
+Does additional checks to minimize the chance of colliding with other species.
 
 **`draw_agents_only`**
 Draw only the agents on the screen.
 
 **`decay_rate`**
-How much to decay/dissapear the agent trails per frame.
+How much to decay the agent trails per frame.
 
 **`blur_rate`**
 How much to blur the agent trails per frame.
