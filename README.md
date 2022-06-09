@@ -14,8 +14,6 @@ Simple artificial life python pogram based on this [slime simulation paper](http
     "agent_count":      10000,
     "steps_per_frame":  1,
     "spawn_mode":       1,
-    "die_on_trapped":   false,
-    "death_time":       15,
     "agent_overlapping":true,
     "radial_boundary":  false,
     "border":           0,
@@ -44,14 +42,8 @@ Could be either of the following:
 <br>`3` Random point in a circle with angle towards the center.
 <br>`4` R andom point in a circle rim with angle towards the center.
 
-**```die_on_trapped```**
-Make the agents die if they get surrounded, cannot move, or collide with other species.
-
-**`death_time`**
-Agents will start dying after `death_time` seconds, this is to give them time to spread out when spawned, since many will spawn on top of each other.
-
 **`agent_overlapping`**
-When false, agents cannot move to a cell where another agent already is
+When false, agents cannot move to a cell where another agent already is.
 
 **`radial_boundary`**
 Sets the agents boundary to a circle `(height/2)`

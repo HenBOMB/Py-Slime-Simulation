@@ -4,8 +4,6 @@
     "agent_count":      10000,
     "steps_per_frame":  1,
     "spawn_mode":       1,
-    "die_on_trapped":   false,
-    "death_time":       20,
     "agent_overlapping":false,
     "decay_rate":       0.005,
     "blur_rate":        0.3,

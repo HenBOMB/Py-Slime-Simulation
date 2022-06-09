@@ -175,25 +175,7 @@ void main(uint3 tid : SV_DispatchThreadID)
                 break;
             }
         }
-
-        float4 res = clamp(s.mask, 0, 1) * weight * 5;
-
-        if(!DIE_ON_TRAPPED)
-        {
-            if(ceil(res.r) + ceil(res.g) + ceil(res.b) > 1 && time[0] > !DEATH_TIME)
-            {
-                agentsOut[tid.x].alive = false;
-                return;
-            }
-            else
-            {
-		        trailMapOut[coord] = res;
-            }
-        }
-        else
-        {
-		    trailMapOut[coord] = res;
-        }
+		trailMapOut[coord] = clamp(s.mask, 0, 1) * weight * 5;
     }
 
     // Update the agents
