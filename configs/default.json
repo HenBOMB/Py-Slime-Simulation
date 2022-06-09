@@ -1,0 +1,16 @@
+{
+    "width" :           960,
+    "height" :          540,
+    "agent_count" :     10000,
+    "steps_per_frame" : 1,
+    "starting_mode" :   1,
+    "die_on_trapped" :  false,
+    "death_time":       20,
+    "hard_avoidance":   false,
+    "draw_agents_only": false,
+    "decay_rate":       0.01,
+    "blur_rate":        0.2,
+    "species": [
+        [ 22.5, 45, 9, 1, 1, [1, 1, 1] ]
+    ]
+}
