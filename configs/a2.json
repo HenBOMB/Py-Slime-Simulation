@@ -2,7 +2,7 @@
     "width" :           930,
     "height":           540,
     "agent_count":      10000,
-    "steps_per_frame":  5,
+    "steps_per_frame":  1,
     "spawn_mode":       1,
     "die_on_trapped":   false,
     "death_time":       20,
