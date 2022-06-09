@@ -35,10 +35,10 @@ The amount of updates to run per frame (fps auto-capped at 60)
 The starting positions of the agents.
 Could be either of the following:
 > `0` Random position and angle.<br>
-<br>> `1` All at the center with a random angle.
-<br>> `2` Random point in a circle with random angle.
-<br>> `3` Random point in a circle with angle towards the center.
-<br>> `4` R andom point in a circle rim with angle towards the center.
+> `1` All at the center with a random angle.<br>
+> `2` Random point in a circle with random angle.<br>
+> `3` Random point in a circle with angle towards the center.<br>
+> `4` R andom point in a circle rim with angle towards the center.<br>
 
 **```die_on_trapped```**
 The agents will die if they get surrounded by other species agents, cannot move, join another one of their species path or if they collide with other species.
@@ -53,12 +53,12 @@ Does additional checks with the attempt of forcing the agent to avoid other spec
 Draw only the agents on the screen.
 
 **`decay_rate`**
-How fast the agent trails decay/dissapear per frame.
+How much to decay/dissapear the agent trails per frame.
 
 **`blur_rate`**
-How much blur to apply to the agent trails per frame.
+How much to blur the agent trails per frame.
 
-**`species`**
+**`species`** Array containing all the to simulate species
 <br>**`0`** SA: FL and FR sensor angle from forward position
 <br>**`1`** RA: Agent rotation angle
 <br>**`2`** SO: Sensor offset distance
