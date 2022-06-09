@@ -150,16 +150,14 @@ void main(uint3 tid : SV_DispatchThreadID)
 
     float2 mid = float2(!WIDTH/2., !HEIGHT/2.);
 
-    float boundsOffset = 10;
-
     // Clamp to bounds
-    if ((!RADIAL_CONSTRAINT && distance(pos, mid) >= !HEIGHT / 2) 
-        || pos.x < boundsOffset || pos.x >= !WIDTH - boundsOffset || pos.y < boundsOffset || pos.y >= !HEIGHT - boundsOffset)
+    if ((!RADIAL_CONSTRAINT && distance(pos, mid) >= mid.y) 
+        || pos.x < 0 || pos.x >= !WIDTH || pos.y < 0 || pos.y >= !HEIGHT)
     {
-        pos.x = clamp(pos.x, 0, !WIDTH - 1 - boundsOffset);
-        pos.y = clamp(pos.y, 0, !HEIGHT - 1 - boundsOffset);
+        pos.x = clamp(pos.x, 0, !WIDTH - 1);
+        pos.y = clamp(pos.y, 0, !HEIGHT - 1);
 
-        if(!RADIAL_CONSTRAINT) pos = clamp_vector(pos, mid, !HEIGHT / 2);
+        if(!RADIAL_CONSTRAINT) pos = clamp_vector(pos, mid, mid.y);
 
         angle = rand(hash(h)) * 2 * 3.1415;
     }
